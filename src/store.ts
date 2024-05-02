@@ -1,6 +1,6 @@
 import { v4 } from 'uuid';
 import { create } from 'zustand';
-import { createJSONStorage, devtools, persist } from 'zustand/middleware';
+import { devtools, persist } from 'zustand/middleware';
 import { DraftPatient, Patient } from './types';
 
 interface PatientState {
@@ -51,7 +51,7 @@ export const usePatientStore = create<PatientState>()(
         }
       }),
       {
-        name: 'patient-storage',
+        name: 'patient-storage'
         // storage:createJSONStorage(() => sessionStorage)
       }
     )
