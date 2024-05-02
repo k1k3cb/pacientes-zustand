@@ -1,23 +1,51 @@
 import { v4 } from 'uuid';
 import { create } from 'zustand';
+import { devtools } from 'zustand/middleware';
 import { DraftPatient, Patient } from './types';
 
 interface PatientState {
   patients: Patient[];
+  activeId: Patient['id'];
   addPatient: (data: DraftPatient) => void;
+  deletePatient: (id: Patient['id']) => void;
+  getPatientById: (id: Patient['id']) => void;
+  updatePatient: (data: DraftPatient) => void;
 }
 
 const createPatient = (patient: DraftPatient): Patient => {
   return { ...patient, id: v4() };
 };
 
-export const usePatientStore = create<PatientState>(set => ({
-  patients: [],
-  addPatient: data => {
-    const newPatient = createPatient(data);
+export const usePatientStore = create<PatientState>()(
+  devtools(set => ({
+    patients: [],
+    activeId: '',
+    addPatient: data => {
+      const newPatient = createPatient(data);
 
-    set(state => ({
-      patients: [...state.patients, newPatient]
-    }));
-  }
-}));
+      set(state => ({
+        patients: [...state.patients, newPatient]
+      }));
+    },
+    deletePatient: id => {
+      set(state => ({
+        patients: state.patients.filter(patient => patient.id !== id)
+      }));
+    },
+
+    getPatientById: id => {
+      set(() => ({ activeId: id }));
+    },
+
+    updatePatient: data => {
+      set(state => ({
+        patients: state.patients.map(patient =>
+          patient.id === state.activeId
+            ? { id: state.activeId, ...data }
+            : patient
+        ),
+        activeId: ''
+      }));
+    }
+  }))
+);
